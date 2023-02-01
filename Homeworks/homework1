@@ -1,0 +1,74 @@
+/*
+NAME - TANUBRATA DEY
+COURSE - BIOL GA 1009
+INSTRUCTOR - PROF. KATARI
+ASSIGNMENT -  HOMEWORK 1
+DUE DATE - 02/05/2021
+*/
+
+/* 1. Provide the create statement which was used to create the table genecoors. Make sure you provide the data types. */
+
+CREATE TABLE genecoors (
+    refseq    VARCHAR (4),
+    coorstart INT,
+    coorend   INT,
+    strand    CHAR (1),
+    genename  VARCHAR (9) 
+);
+
+/* 2. Using table genecoors, determine the number of genes on the positive strand of Chromosome 1?
+ Make the query return ONLY the numberof genes, not a list of genes. */ 
+
+SELECT count(genename) AS Number_of_Genes
+  FROM genecoors
+ WHERE refseq = "Chr1" AND 
+       strand = "+";
+
+/* 3. Find the gene located on Chromosome 4 that starts after 345,000 and ends before 350,000.
+   Your SQL should print ONLY the gene name. */
+
+SELECT genename AS Gene_Name
+  FROM genecoors
+ WHERE refseq = "Chr4" AND 
+       (coorstart > 345000 AND 
+        coorend < 350000);
+
+/* 4. Use geneannotation table to print the gene name and the annotation of the gene located on Chromosome 4,
+ starts after 345,000 and ends before 350,000. This is the same gene as question 3, 
+ but use a subselect statement to answer the question. */
+
+SELECT genename AS Gene_Name,
+       annotation
+  FROM geneannotation
+ WHERE genename IN (
+           SELECT genename
+             FROM genecoors
+            WHERE refseq = "Chr4" AND 
+                  (coorstart > 345000 AND 
+                   coorend < 350000) 
+       );
+
+/* 5. Using geneannotation table, determine the number of genes that have the word “kinase” in their annotation.
+ The word can be in the beginning, middle, or end. */
+
+SELECT count(genename) AS Number_of_Genes
+  FROM geneannotation
+ WHERE annotation LIKE "%kinase%";
+
+/* 6. Print the number of genes, grouped by chromosome,that have the word “kinase” as part of the definition 
+(includes words like “kinases” or“phosphokinase”, etc.)This has to be done in one query statement. **hint use group by */
+
+SELECT refseq AS Chromosome,
+       count(genename) AS Number_of_Genes
+  FROM genecoors
+ WHERE genename IN (
+           SELECT genename
+             FROM geneannotation
+            WHERE annotation LIKE "%kinase%"
+       )
+ GROUP BY refseq;
+
+/* 7. What command would you use to remove all genes from the genecoors table where chromosome is ChrC (chloroplast)? */
+
+DELETE FROM genecoors
+      WHERE refseq = "ChrC";
